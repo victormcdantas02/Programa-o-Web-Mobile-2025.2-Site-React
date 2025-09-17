@@ -1,5 +1,5 @@
 
-import "react-day-picker/dist/style.css";
+import "react-day-picker/style.css";
 import "./globals.css";
 
 export const metadata = {
