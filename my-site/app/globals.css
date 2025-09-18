@@ -1,6 +1,6 @@
 body{
   font-family: arial;
-  background-color: f4f4f4;
+  background-color: #f4f4f4;
   padding: 36px;
   color: #333;
   background-image: url('./assets/background.jpg');
@@ -8,11 +8,9 @@ body{
   background-size: cover;
 }
 
-
 .app{
   max-width: 600px;
   margin: 0 auto 300px;  /* centralização */
-  
   background-color: #efefef;
   padding: 20px 30px;
   border-radius: 10px;
@@ -25,6 +23,12 @@ h1{
 h2{
   margin-bottom: 10px;
 }
+
+h3{
+  margin: 20px 0 10px 0;
+  color: #333;
+}
+
 p{
   margin: 10px 0;
 }
@@ -42,8 +46,9 @@ button {
   border-radius: 3px;
   cursor: pointer;
   opacity: 0.8;
-  transition: 3.s;
+  transition: 0.3s; /* corrigido de 3.s para 0.3s */
 }
+
 button:hover{
   opacity: 1;
 }
@@ -59,10 +64,285 @@ input, select{
   border-radius: 3px;
   width: 100%;
 }
+
 .complete{
   background-color: #5cb85c;
 }
 
 .remove{
   background-color: rgb(228, 43, 43);
+}
+
+/* ESTILOS DO CALENDÁRIO */
+
+/* Toggle entre views */
+.view-toggle {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+  justify-content: center;
+}
+
+.view-toggle button {
+  padding: 10px 20px;
+  background-color: #ddd;
+  color: #333;
+  font-size: 14px;
+}
+
+.view-toggle button.active {
+  background-color: #333974;
+  color: white;
+  opacity: 1;
+}
+
+/* Container do calendário */
+.calendar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.calendar {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Header do calendário com navegação */
+.calendar-header {
+  margin-bottom: 20px;
+}
+
+.calendar-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.calendar-navigation h2 {
+  margin: 0;
+  font-size: 22px;
+  color: #333;
+  font-weight: bold;
+}
+
+.nav-btn {
+  background-color: #333974 !important;
+  color: white !important;
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  padding: 0;
+}
+
+.nav-btn:hover {
+  background-color: #2a2d5f !important;
+  transform: scale(1.1);
+  opacity: 1;
+}
+
+.today-btn {
+  background-color: #5cb85c !important;
+  color: white !important;
+  border: none;
+  border-radius: 3px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.today-btn:hover {
+  background-color: #4cae4c !important;
+  opacity: 1;
+}
+
+/* Dias da semana */
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  margin-bottom: 15px;
+}
+
+.calendar-weekdays div {
+  text-align: center;
+  font-weight: bold;
+  padding: 8px 5px;
+  font-size: 12px;
+  color: #666;
+}
+
+/* Grid do calendário */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 3px;
+  background-color: white;
+  transition: all 0.3s;
+  min-height: 40px;
+}
+
+.calendar-day:hover {
+  background-color: #f0f8ff;
+  border-color: #333974;
+}
+
+.calendar-day.selected {
+  background-color: #333974;
+  color: white;
+  border-color: #333974;
+}
+
+.calendar-day.has-tasks {
+  background-color: #fff3cd;
+  border-color: #ffc107;
+  font-weight: bold;
+}
+
+.calendar-day.selected.has-tasks {
+  background-color: #333974;
+  color: white;
+}
+
+.calendar-day.today {
+  background-color: #5cb85c;
+  color: white;
+  font-weight: bold;
+  border: 2px solid #4cae4c;
+}
+
+.calendar-day.today.selected {
+  background-color: #333974;
+  border-color: #333974;
+}
+
+.calendar-day.today.has-tasks {
+  background-color: #5cb85c;
+  color: white;
+  border: 2px solid #ffc107;
+}
+
+.calendar-day.empty {
+  border: none;
+  cursor: default;
+  background-color: transparent;
+}
+
+.calendar-day.empty:hover {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+/* Seção de tarefas do dia selecionado */
+.selected-day-tasks {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.selected-day-tasks h3 {
+  color: #333974;
+  border-bottom: 2px solid #efefef;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.selected-day-tasks > p {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  margin: 20px 0;
+}
+
+/* Estilos para todos completados */
+.todo.completed {
+  opacity: 0.7;
+  background-color: #f8f9fa;
+}
+
+.completed-text {
+  text-decoration: line-through;
+  color: #6c757d;
+}
+
+.complete.undo {
+  background-color: #ffc107 !important;
+  color: #000 !important;
+}
+
+.date {
+  font-size: 0.9em;
+  color: #666;
+  margin: 5px 0;
+  font-style: italic;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  body {
+    padding: 20px;
+  }
+  
+  .app {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 15px 20px;
+  }
+  
+  .view-toggle {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .view-toggle button {
+    padding: 8px 15px;
+  }
+  
+  .calendar-navigation h2 {
+    font-size: 18px;
+  }
+  
+  .nav-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
+  
+  .today-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  .calendar-weekdays div {
+    font-size: 10px;
+    padding: 5px 2px;
+  }
+  
+  .calendar-day {
+    font-size: 14px;
+    min-height: 35px;
+  }
 }
