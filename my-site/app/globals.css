@@ -10,7 +10,7 @@ body{
 
 .app{
   max-width: 600px;
-  margin: 0 auto 300px;  /* centralização */
+  margin: 0 auto 300px;
   background-color: #efefef;
   padding: 20px 30px;
   border-radius: 10px;
@@ -35,7 +35,6 @@ p{
 
 input{
   box-sizing: border-box;
-  /* Para que não estrapolem o tamanho do elemento pai */
 }
 
 button {
@@ -46,7 +45,7 @@ button {
   border-radius: 3px;
   cursor: pointer;
   opacity: 0.8;
-  transition: 0.3s; /* corrigido de 3.s para 0.3s */
+  transition: 0.3s;
 }
 
 button:hover{
@@ -65,6 +64,15 @@ input, select{
   width: 100%;
 }
 
+/* Adicionado para o campo de data */
+input[type="date"] {
+  padding: 5px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  width: 100%;
+}
+
 .complete{
   background-color: #5cb85c;
 }
@@ -73,9 +81,162 @@ input, select{
   background-color: rgb(228, 43, 43);
 }
 
-/* ESTILOS DO CALENDÁRIO */
+/* ESTILOS DO TODO */
+.todo {
+  background-color: white;
+  margin: 10px 0;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 15px;
+}
 
-/* Toggle entre views */
+.todo .content {
+  flex: 1;
+}
+
+.todo .actions {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.todo .actions button {
+  min-width: 80px;
+  font-size: 12px;
+}
+
+/* ESTATÍSTICAS - Adicionado */
+.app-header {
+  margin-bottom: 20px;
+}
+
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  background-color: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+.stat-item {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.stat-number {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333974;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #666;
+  font-weight: normal;
+}
+
+/* FILTROS - Adicionado */
+.todos-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.search-container {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+.clear-search {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #ddd;
+  border: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.filter-buttons button {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  background-color: white;
+  color: #666;
+  border-radius: 3px;
+  font-size: 12px;
+  opacity: 1;
+}
+
+.filter-buttons button:hover {
+  border-color: #333974;
+  color: #333974;
+}
+
+.filter-buttons button.filter-active {
+  background-color: #333974;
+  color: white;
+  border-color: #333974;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  margin: 20px 0;
+}
+
+.empty-state p {
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.view-all-btn, .clear-filters-btn {
+  background-color: #333974;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 3px;
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.view-all-btn:hover, .clear-filters-btn:hover {
+  opacity: 1;
+}
+
+/* ESTILOS DO CALENDÁRIO */
 .view-toggle {
   display: flex;
   gap: 10px;
@@ -96,7 +257,6 @@ input, select{
   opacity: 1;
 }
 
-/* Container do calendário */
 .calendar-container {
   display: flex;
   flex-direction: column;
@@ -110,7 +270,6 @@ input, select{
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-/* Header do calendário com navegação */
 .calendar-header {
   margin-bottom: 20px;
 }
@@ -167,7 +326,6 @@ input, select{
   opacity: 1;
 }
 
-/* Dias da semana */
 .calendar-weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -183,7 +341,6 @@ input, select{
   color: #666;
 }
 
-/* Grid do calendário */
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -193,6 +350,7 @@ input, select{
 .calendar-day {
   aspect-ratio: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   border: 1px solid #ddd;
@@ -202,6 +360,7 @@ input, select{
   background-color: white;
   transition: all 0.3s;
   min-height: 40px;
+  position: relative;
 }
 
 .calendar-day:hover {
@@ -255,12 +414,59 @@ input, select{
   border-color: transparent;
 }
 
-/* Seção de tarefas do dia selecionado */
+/* Adicionado para indicadores de tarefas no calendário */
+.day-number {
+  font-size: 14px;
+}
+
+.task-indicators {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.task-count {
+  background-color: #e53e3e;
+  color: white;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  font-size: 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-day.selected .task-count {
+  background-color: #fed7d7;
+  color: #c53030;
+}
+
 .selected-day-tasks {
   background-color: white;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Adicionado para cabeçalho do dia */
+.day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.task-count.task-count {
+  background-color: #333974;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
 }
 
 .selected-day-tasks h3 {
@@ -277,7 +483,30 @@ input, select{
   margin: 20px 0;
 }
 
-/* Estilos para todos completados */
+/* Adicionado para área de adicionar tarefa rápida */
+.quick-add-section {
+  margin-top: 20px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+.quick-add-toggle summary {
+  cursor: pointer;
+  color: #333974;
+  font-weight: bold;
+  padding: 10px;
+  border-radius: 3px;
+  transition: background-color 0.2s;
+}
+
+.quick-add-toggle summary:hover {
+  background-color: #f5f5f5;
+}
+
+.quick-add-form {
+  margin-top: 15px;
+}
+
 .todo.completed {
   opacity: 0.7;
   background-color: #f8f9fa;
@@ -311,6 +540,10 @@ input, select{
     margin: 0 auto;
     padding: 15px 20px;
   }
+
+  .stats-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
   
   .view-toggle {
     flex-direction: column;
@@ -319,6 +552,29 @@ input, select{
   
   .view-toggle button {
     padding: 8px 15px;
+  }
+
+  .filter-buttons {
+    justify-content: center;
+  }
+
+  .todo {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .todo .actions {
+    flex-direction: row;
+    width: 100%;
+  }
+
+  .todo .actions button {
+    flex: 1;
+  }
+
+  .day-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
   
   .calendar-navigation h2 {
