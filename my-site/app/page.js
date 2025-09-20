@@ -2,53 +2,61 @@
 import { useState } from "react";
 import Todo from "../components/Todo";
 import TodoForm from "../components/TodoForm";
-import Calendar from "../components/Calendar"; // Adicione esta linha
+import Calendar from "../components/Calendar";
 
 export default function Page() {
-  // Seus todos com datas adicionadas
+
   const [todos, settodos] = useState([
     {
       id: 1,
-      text: "Criar uma funcialidade x no sistema",
+      text: "Reunião de Equipe",
       category: "Trabalho",
       isCompleted: false,
-      date: "2025-10-15", // Adicione esta linha
-    }, 
+      date: "2025-10-15",
+    },
     {
       id: 2,
-      text: "Ir para a acaddemia",
-      category: "Pessoal",
+      text: "Dermatologista",
+      category: "Saúde",
       isCompleted: false,
-      date: "2025-10-16", // Adicione esta linha
-    }, 
+      date: "2025-10-15",
+    },
     {
       id: 3,
+      text: "Ir para a academia",
+      category: "Pessoal",
+      isCompleted: false,
+      date: "2025-10-16",
+    },
+    {
+      id: 4,
       text: "Estudar React",
       category: "Estudos",
       isCompleted: false,
-      date: "2025-10-17", // Adicione esta linha
+      date: "2025-10-17",
     }
   ]);
 
-  // Adicione estes novos estados
   const [activeView, setActiveView] = useState('todos');
   const [selectedDate, setSelectedDate] = useState(new Date(2025, 9, 15));
+  const [filter, setFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
 
-  // Sua função addTodo modificada
-  const addTodo = (text, category) => {
+  const addTodo = (text, category, date) => {
     const newTodos = [...todos, {
       id: Math.floor(Math.random() * 100000),
-      text,
+      text: text.trim(),
       category,
       isCompleted: false,
-      date: selectedDate.toISOString().split('T')[0], // Usa data selecionada
+      date: date,
     }];
     settodos(newTodos);
+
+    console.log(`Tarefa "${text}" criada para ${new Date(date + 'T00:00:00').toLocaleDateString('pt-BR')}`);
   }
 
-  // Adicione estas novas funções
   const completeTodo = (id) => {
-    const newTodos = todos.map(todo => 
+    const newTodos = todos.map(todo =>
       todo.id === id ? { ...todo, isCompleted: !todo.isCompleted } : todo
     );
     settodos(newTodos);
@@ -58,74 +66,4 @@ export default function Page() {
     const filteredTodos = todos.filter(todo => todo.id !== id);
     settodos(filteredTodos);
   };
-
-  const getTodosForSelectedDate = () => {
-    const dateString = selectedDate.toISOString().split('T')[0];
-    return todos.filter(todo => todo.date === dateString);
-  };
-
-  return (
-    <div className="app">
-      {/* Adicione este menu de navegação */}
-      <div className="view-toggle">
-        <button 
-          className={activeView === 'todos' ? 'active' : ''}
-          onClick={() => setActiveView('todos')}
-        >
-          Lista de Tarefas
-        </button>
-        <button 
-          className={activeView === 'calendario' ? 'active' : ''}
-          onClick={() => setActiveView('calendario')}
-        >
-          Calendário
-        </button>
-      </div>
-
-      {/* Sua view original - mantém tudo igual */}
-      {activeView === 'todos' && (
-        <>
-          <h1>Lista de Tarefas</h1>
-          <div className="todo-list">
-            {todos.map((todo) => (
-              <Todo 
-                key={todo.id} 
-                todo={todo}
-                completeTodo={completeTodo}
-                removeTodo={removeTodo}
-              />
-            ))}
-          </div>
-          <TodoForm addTodo={addTodo}/>
-        </>
-      )}
-
-      {/* Nova view do calendário */}
-      {activeView === 'calendario' && (
-        <div className="calendar-container">
-          <h1>Agenda</h1>
-          <Calendar 
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
-            todos={todos}
-          />
-          <div className="selected-day-tasks">
-            <h3>Tarefas para {selectedDate.toLocaleDateString('pt-BR')}</h3>
-            {getTodosForSelectedDate().length > 0 ? (
-              getTodosForSelectedDate().map(todo => (
-                <Todo 
-                  key={todo.id} 
-                  todo={todo}
-                  completeTodo={completeTodo}
-                  removeTodo={removeTodo}
-                />
-              ))
-            ) : (
-              <p>Nenhuma tarefa para este dia</p>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
 }
