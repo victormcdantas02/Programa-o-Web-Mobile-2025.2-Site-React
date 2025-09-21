@@ -1,4 +1,3 @@
-
 import "react-day-picker/style.css";
 import "./globals.css";
 
@@ -14,3 +13,4 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
+
