@@ -14,7 +14,7 @@ body {
   font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
   color: #0f172a;
   background-color: var(--bg);
-  background-image: url('./assets/background.jpg');
+  background-image: url('./public/background.jpg');
   background-position: center;
   background-size: cover;
   padding: 36px;
