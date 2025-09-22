@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 
-export default function Calendar({ selectedDate, setSelectedDate, todos, onDateSelect }) {
+export default function Calendar({ selectedDate, todos, onDateSelect }) {  // CORREÇÃO 1
   const today = new Date();
  
   // Estados para controlar o mês/ano exibido
@@ -30,7 +30,7 @@ export default function Calendar({ selectedDate, setSelectedDate, todos, onDateS
   const goToToday = () => {
     const todayDate = new Date();
     setViewDate(new Date(todayDate.getFullYear(), todayDate.getMonth(), 1));
-    setSelectedDate(todayDate);
+    onDateSelect(todayDate);  // CORREÇÃO 2
   };
  
   // Função para verificar se uma data tem tarefas
@@ -81,11 +81,10 @@ export default function Calendar({ selectedDate, setSelectedDate, todos, onDateS
   // Selecionar um dia
   const selectDay = (day) => {
     const newSelectedDate = new Date(currentYear, currentMonth, day);
-    setSelectedDate(newSelectedDate);
     
     // Callback opcional para quando uma data é selecionada
     if (onDateSelect) {
-      onDateSelect(newSelectedDate);
+      onDateSelect(newSelectedDate);  // CORREÇÃO 3
     }
   };
  
