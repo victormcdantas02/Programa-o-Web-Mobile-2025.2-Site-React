@@ -1,156 +1,126 @@
 "use client";
 import { useState, useEffect } from "react";
-import Todo from "../components/Todo";
-import TodoForm from "../components/TodoForm";
-import Calendar from "../components/Calendar";
+import { useRouter } from "next/navigation";
+import Todo from "../components/Todo.js";
+import TodoForm from "../components/TodoForm.js";
+import Calendar from "../components/Calendar.js";
+import Parse from "... @/lib/parse";
 
 export default function Page() {
-  const [todos, settodos] = useState(() => {
-    // Tenta carregar do localStorage primeiro
-    if (typeof window !== 'undefined') {
-      const savedTodos = localStorage.getItem('todos');
-      if (savedTodos) {
-        try {
-          return JSON.parse(savedTodos);
-        } catch (error) {
-          console.error('Erro ao carregar tarefas salvas:', error);
-        }
-      }
-    }
-    // Se não houver dados salvos, usa as tarefas de exemplo
-    return [
-      {
-        id: 1,
-        text: "Reunião de Equipe",
-        category: "Trabalho",
-        isCompleted: false,
-        date: "2025-10-15",
-      },
-      {
-        id: 2,
-        text: "Dermatologista",
-        category: "Saúde",
-        isCompleted: false,
-        date: "2025-10-15",
-      },
-      {
-        id: 3,
-        text: "Ir para a academia",
-        category: "Pessoal",
-        isCompleted: false,
-        date: "2025-10-16",
-      },
-      {
-        id: 4,
-        text: "Estudar React",
-        category: "Estudos",
-        isCompleted: false,
-        date: "2025-10-17",
-      }
-    ];
-  });
- 
-  const [activeView, setActiveView] = useState('todos');
-  const [selectedDate, setSelectedDate] = useState(new Date(2025, 9, 15));
-  const [filter, setFilter] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [todos, setTodos] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const router = useRouter();
 
-  // Salva as tarefas no localStorage sempre que o estado mudar
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('todos', JSON.stringify(todos));
+    const currentUser = Parse.User.current();
+    if (!currentUser) return router.push("/login");
+    setUser(currentUser);
+    fetchTodos(currentUser);
+  }, []);
+
+  const fetchTodos = async (currentUser) => {
+    setLoading(true);
+    try {
+      const query = new Parse.Query("Todo");
+      query.equalTo("user", currentUser);
+      query.ascending("data");
+      const results = await query.find();
+
+      setTodos(results.map(todo => {
+        const parseDate = todo.get("data");
+        return {
+          id: todo.id,
+          text: todo.get("text"),
+          category: todo.get("category"),
+          isCompleted: todo.get("isCompleted"),
+          data: parseDate
+            ? new Date(Date.UTC(parseDate.getFullYear(), parseDate.getMonth(), parseDate.getDate()))
+            : null,
+        };
+      }));
+    } catch (err) {
+      console.error("Erro ao carregar tarefas:", err);
+    } finally {
+      setLoading(false);
     }
-  }, [todos]);
- 
-  const addTodo = (text, category, date) => {
-    const newTodos = [...todos, {
-      id: Math.floor(Math.random() * 100000),
-      text: text.trim(),
-      category,
-      isCompleted: false,
-      date: date,
-    }];
-    settodos(newTodos);
-    console.log(`Tarefa "${text}" criada para ${new Date(date + 'T00:00:00').toLocaleDateString('pt-BR')}`);
-  }
- 
-  const completeTodo = (id) => {
-    const newTodos = todos.map(todo =>
-      todo.id === id ? { ...todo, isCompleted: !todo.isCompleted } : todo
-    );
-    settodos(newTodos);
-  };
- 
-  const removeTodo = (id) => {
-    const filteredTodos = todos.filter(todo => todo.id !== id);
-    settodos(filteredTodos);
   };
 
-  // Função para limpar todas as tarefas (opcional)
-  const clearAllTodos = () => {
-    settodos([]);
+  const addTodo = async (text, category, data) => {
+    if (!user) return;
+
+    try {
+      const TodoObj = new Parse.Object("Todo");
+      TodoObj.set("text", text.trim());
+      TodoObj.set("category", category);
+      TodoObj.set("isCompleted", false);
+      TodoObj.set("data", data);
+      TodoObj.set("user", user);
+
+      const savedTodo = await TodoObj.save();
+
+      setTodos(prev => [...prev, { id: savedTodo.id, text, category, isCompleted: false, data }]);
+    } catch (err) {
+      console.error("Erro ao adicionar tarefa:", err);
+    }
   };
 
-  // Função para limpar apenas as tarefas de exemplo (opcional)
-  const clearExampleTasks = () => {
-    const exampleIds = [1, 2, 3, 4]; // IDs das tarefas de exemplo
-    const filteredTodos = todos.filter(todo => !exampleIds.includes(todo.id));
-    settodos(filteredTodos);
+  const completeTodo = async (id) => {
+    try {
+      const query = new Parse.Query("Todo");
+      const todo = await query.get(id);
+      todo.set("isCompleted", !todo.get("isCompleted"));
+      const updated = await todo.save();
+      setTodos(prev => prev.map(t => t.id === id ? { ...t, isCompleted: updated.get("isCompleted") } : t));
+    } catch (err) {
+      console.error("Erro ao atualizar tarefa:", err);
+    }
+  };
+
+  const removeTodo = async (id) => {
+    try {
+      const query = new Parse.Query("Todo");
+      const todo = await query.get(id);
+      await todo.destroy();
+      setTodos(prev => prev.filter(t => t.id !== id));
+    } catch (err) {
+      console.error("Erro ao remover tarefa:", err);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await Parse.User.logOut();
+      router.push("/login");
+    } catch (err) {
+      console.error("Erro ao fazer logout:", err);
+    }
   };
 
   return (
     <div className="container mx-auto p-4">
-      {/* Seção de Instruções */}
-      <div className="instructions-section mb-6 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-400">
-        <h2 className="text-lg font-semibold text-blue-800 mb-3">📋 INSTRUÇÕES</h2>
-        <ol className="text-sm text-blue-700 space-y-2">
-          <li className="flex items-start gap-2">
-            <span className="font-semibold">1.</span>
-            <span>Selecione a data no calendário</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="font-semibold">2.</span>
-            <span>Adicione as atividades na página principal</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="font-semibold">3.</span>
-            <span>Conferir as tarefas e dias escolhidos</span>
-          </li>
-        </ol>
-      </div>
-
-      {/* Botões de controle (opcional) */}
-      <div className="mb-4 flex gap-2">
-        {todos.some(todo => [1, 2, 3, 4].includes(todo.id)) && (
-          <button 
-            onClick={clearExampleTasks}
-            className="px-3 py-1 text-sm bg-yellow-500 hover:bg-yellow-600 text-white rounded transition-colors"
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-semibold">📅 Suas Tarefas</h2>
+        {user && (
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
           >
-            Remover Tarefas de Exemplo
-          </button>
-        )}
-        {todos.length > 0 && (
-          <button 
-            onClick={clearAllTodos}
-            className="px-3 py-1 text-sm bg-red-500 hover:bg-red-600 text-white rounded transition-colors"
-          >
-            Limpar Todas as Tarefas
+            Logout
           </button>
         )}
       </div>
 
-      {/* Componentes da aplicação */}
       <TodoForm onAddTodo={addTodo} />
-     
-      <div className="grid md:grid-cols-2 gap-6">
-        <div>
-          {/* Lista de Todos */}
-          <div className="space-y-2">
+
+      {loading ? (
+        <p>Carregando tarefas...</p>
+      ) : (
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
             {todos.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                <p>Nenhuma tarefa cadastrada.</p>
-                <p className="text-sm">Adicione sua primeira tarefa acima!</p>
-              </div>
+              <p>Nenhuma tarefa cadastrada.</p>
             ) : (
               todos.map(todo => (
                 <Todo
@@ -162,17 +132,16 @@ export default function Page() {
               ))
             )}
           </div>
+
+          <div>
+            <Calendar
+              todos={todos}
+              selectedDate={selectedDate}
+              onDateSelect={setSelectedDate}
+            />
+          </div>
         </div>
-       
-        <div>
-          {/* Calendário */}
-          <Calendar
-            todos={todos}
-            selectedDate={selectedDate}
-            onDateSelect={setSelectedDate}
-          />
-        </div>
-      </div>
+      )}
     </div>
   );
 }

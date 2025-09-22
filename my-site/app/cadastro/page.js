@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Parse from "@/lib/parse";
+import Parse from "... @/lib/parse";
 
 export default function CadastroPage() {
   const [username, setUsername] = useState("");

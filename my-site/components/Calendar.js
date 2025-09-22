@@ -1,117 +1,79 @@
 "use client";
 import { useState } from "react";
 
-export default function Calendar({ selectedDate, todos, onDateSelect }) {  // CORREÇÃO 1
+export default function Calendar({ selectedDate, todos, onDateSelect }) {  
   const today = new Date();
- 
-  // Estados para controlar o mês/ano exibido
-  const [viewDate, setViewDate] = useState(new Date(2025, 9, 1)); // começa em outubro 2025
- 
-  const currentMonth = viewDate.getMonth();
-  const currentYear = viewDate.getFullYear();
- 
-  // Nomes dos meses
+  const [viewDate, setViewDate] = useState(new Date(Date.UTC(today.getFullYear(), today.getMonth(), 1)));
+  const [dayTodos, setDayTodos] = useState([]);
+
+  const currentMonth = viewDate.getUTCMonth();
+  const currentYear = viewDate.getUTCFullYear();
+
   const monthNames = [
-    "JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO",
-    "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"
+    "JANEIRO","FEVEREIRO","MARÇO","ABRIL","MAIO","JUNHO",
+    "JULHO","AGOSTO","SETEMBRO","OUTUBRO","NOVEMBRO","DEZEMBRO"
   ];
- 
-  // Função para ir para o mês anterior
-  const previousMonth = () => {
-    setViewDate(new Date(currentYear, currentMonth - 1, 1));
-  };
- 
-  // Função para ir para o próximo mês
-  const nextMonth = () => {
-    setViewDate(new Date(currentYear, currentMonth + 1, 1));
-  };
- 
-  // Função para voltar ao mês atual
+
+  const previousMonth = () => setViewDate(new Date(Date.UTC(currentYear, currentMonth - 1, 1)));
+  const nextMonth = () => setViewDate(new Date(Date.UTC(currentYear, currentMonth + 1, 1)));
   const goToToday = () => {
-    const todayDate = new Date();
-    setViewDate(new Date(todayDate.getFullYear(), todayDate.getMonth(), 1));
-    onDateSelect(todayDate);  // CORREÇÃO 2
+    const newToday = new Date(Date.UTC(today.getFullYear(), today.getMonth(), 1));
+    setViewDate(newToday);
+    handleDateSelect(today);
   };
- 
-  // Função para verificar se uma data tem tarefas
+
+  const sameDay = (d1, d2) =>
+    d1.getUTCFullYear() === d2.getUTCFullYear() &&
+    d1.getUTCMonth() === d2.getUTCMonth() &&
+    d1.getUTCDate() === d2.getUTCDate();
+
+  const handleDateSelect = (date) => {
+    onDateSelect && onDateSelect(date);
+    const todosDoDia = todos.filter(todo => todo.data && sameDay(new Date(todo.data), date));
+    setDayTodos(todosDoDia);
+  };
+
   const hasTasksOnDate = (day) => {
-    const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    return todos.some(todo => todo.date === dateString);
+    const dayDate = new Date(Date.UTC(currentYear, currentMonth, day));
+    return todos.some(todo => todo.data && sameDay(new Date(todo.data), dayDate));
   };
 
-  // Função para contar tarefas em uma data específica
   const getTaskCountForDate = (day) => {
-    const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    return todos.filter(todo => todo.date === dateString).length;
+    const dayDate = new Date(Date.UTC(currentYear, currentMonth, day));
+    return todos.filter(todo => todo.data && sameDay(new Date(todo.data), dayDate)).length;
   };
 
-  // Função para contar tarefas concluídas em uma data específica
   const getCompletedTasksForDate = (day) => {
-    const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    return todos.filter(todo => todo.date === dateString && todo.isCompleted).length;
+    const dayDate = new Date(Date.UTC(currentYear, currentMonth, day));
+    return todos.filter(todo => todo.data && sameDay(new Date(todo.data), dayDate) && todo.isCompleted).length;
   };
 
-  // Função para verificar se todas as tarefas do dia estão concluídas
   const areAllTasksCompleted = (day) => {
-    const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    const dayTodos = todos.filter(todo => todo.date === dateString);
+    const dayDate = new Date(Date.UTC(currentYear, currentMonth, day));
+    const dayTodos = todos.filter(todo => todo.data && sameDay(new Date(todo.data), dayDate));
     return dayTodos.length > 0 && dayTodos.every(todo => todo.isCompleted);
   };
- 
-  // Função para verificar se é o dia selecionado
-  const isSelectedDay = (day) => {
-    return selectedDate.getDate() === day &&
-           selectedDate.getMonth() === currentMonth &&
-           selectedDate.getFullYear() === currentYear;
-  };
 
-  // Função para verificar se é um dia passado
-  const isPastDay = (day) => {
-    const dayDate = new Date(currentYear, currentMonth, day);
-    const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    return dayDate < todayDate;
-  };
+  const isSelectedDay = (day) => sameDay(selectedDate, new Date(Date.UTC(currentYear, currentMonth, day)));
+  const isPastDay = (day) => new Date(Date.UTC(currentYear, currentMonth, day)) < new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+  const isWeekend = (day) => { const d = new Date(Date.UTC(currentYear, currentMonth, day)); return d.getUTCDay() === 0 || d.getUTCDay() === 6; };
+  const selectDay = (day) => handleDateSelect(new Date(Date.UTC(currentYear, currentMonth, day)));
 
-  // Função para verificar se é fim de semana
-  const isWeekend = (day) => {
-    const dayOfWeek = new Date(currentYear, currentMonth, day).getDay();
-    return dayOfWeek === 0 || dayOfWeek === 6; // Domingo ou Sábado
-  };
- 
-  // Selecionar um dia
-  const selectDay = (day) => {
-    const newSelectedDate = new Date(currentYear, currentMonth, day);
-    
-    // Callback opcional para quando uma data é selecionada
-    if (onDateSelect) {
-      onDateSelect(newSelectedDate);  // CORREÇÃO 3
-    }
-  };
- 
-  // Gerar os dias do mês
   const renderDays = () => {
-    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const daysInMonth = new Date(Date.UTC(currentYear, currentMonth + 1, 0)).getUTCDate();
+    const firstDay = new Date(Date.UTC(currentYear, currentMonth, 1)).getUTCDay();
     const days = [];
-   
-    // Dias vazios do início
-    for (let i = 0; i < firstDay; i++) {
-      days.push(<div key={`empty-${i}`} className="calendar-day empty"></div>);
-    }
-   
-    // Dias do mês
-    for (let day = 1; day <= daysInMonth; day++) {
-      // Verificar se é hoje (dia atual real)
-      const isToday = today.getDate() === day &&
-                     today.getMonth() === currentMonth &&
-                     today.getFullYear() === currentYear;
 
+    for (let i = 0; i < firstDay; i++) days.push(<div key={`empty-${i}`} className="calendar-day empty"></div>);
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const isToday = sameDay(today, new Date(Date.UTC(currentYear, currentMonth, day)));
       const taskCount = getTaskCountForDate(day);
       const completedCount = getCompletedTasksForDate(day);
       const allCompleted = areAllTasksCompleted(day);
-      const isPast = isPastDay(day);
+      const past = isPastDay(day);
       const weekend = isWeekend(day);
-     
+
       days.push(
         <div
           key={day}
@@ -120,7 +82,7 @@ export default function Calendar({ selectedDate, todos, onDateSelect }) {  // CO
             ${hasTasksOnDate(day) ? 'has-tasks' : ''}
             ${allCompleted ? 'all-completed' : ''}
             ${isToday ? 'today' : ''}
-            ${isPast ? 'past-day' : ''}
+            ${past ? 'past-day' : ''}
             ${weekend ? 'weekend' : ''}
           `}
           onClick={() => selectDay(day)}
@@ -131,15 +93,10 @@ export default function Calendar({ selectedDate, todos, onDateSelect }) {  // CO
           <span className="day-number">{day}</span>
           {taskCount > 0 && (
             <div className="task-indicators">
-              <span className={`task-count ${allCompleted ? 'completed' : ''}`}>
-                {taskCount}
-              </span>
+              <span className={`task-count ${allCompleted ? 'completed' : ''}`}>{taskCount}</span>
               {taskCount > 1 && completedCount > 0 && !allCompleted && (
                 <div className="progress-bar">
-                  <div 
-                    className="progress-fill" 
-                    style={{ width: `${(completedCount / taskCount) * 100}%` }}
-                  ></div>
+                  <div className="progress-fill" style={{ width: `${(completedCount / taskCount) * 100}%` }}></div>
                 </div>
               )}
             </div>
@@ -150,28 +107,23 @@ export default function Calendar({ selectedDate, todos, onDateSelect }) {  // CO
     return days;
   };
 
-  // Função para obter estatísticas do mês atual
   const getMonthStats = () => {
-    const monthStart = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
-    const monthEnd = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-31`;
-    
-    const monthTodos = todos.filter(todo => todo.date >= monthStart && todo.date <= monthEnd);
+    const monthTodos = todos.filter(todo => {
+      const d = new Date(todo.data);
+      return d.getUTCFullYear() === currentYear && d.getUTCMonth() === currentMonth;
+    });
     const completed = monthTodos.filter(todo => todo.isCompleted).length;
     const total = monthTodos.length;
-    
     return { total, completed, pending: total - completed };
   };
 
   const monthStats = getMonthStats();
- 
+
   return (
     <div className="calendar">
-      {/* Header com navegação e estatísticas */}
       <div className="calendar-header">
         <div className="calendar-navigation">
-          <button onClick={previousMonth} className="nav-btn" title="Mês anterior">
-            ←
-          </button>
+          <button onClick={previousMonth} className="nav-btn" title="Mês anterior">←</button>
           <div className="month-info">
             <h2>{monthNames[currentMonth]} {currentYear}</h2>
             {monthStats.total > 0 && (
@@ -181,45 +133,37 @@ export default function Calendar({ selectedDate, todos, onDateSelect }) {  // CO
               </div>
             )}
           </div>
-          <button onClick={nextMonth} className="nav-btn" title="Próximo mês">
-            →
-          </button>
+          <button onClick={nextMonth} className="nav-btn" title="Próximo mês">→</button>
         </div>
-        <button onClick={goToToday} className="today-btn">
-          Hoje
-        </button>
+        <button onClick={goToToday} className="today-btn">Hoje</button>
       </div>
 
-      {/* Legenda */}
       <div className="calendar-legend">
-        <div className="legend-item">
-          <div className="legend-color today-legend"></div>
-          <span>Hoje</span>
-        </div>
-        <div className="legend-item">
-          <div className="legend-color has-tasks-legend"></div>
-          <span>Com tarefas</span>
-        </div>
-        <div className="legend-item">
-          <div className="legend-color completed-legend"></div>
-          <span>Concluídas</span>
-        </div>
+        <div className="legend-item"><div className="legend-color today-legend"></div><span>Hoje</span></div>
+        <div className="legend-item"><div className="legend-color has-tasks-legend"></div><span>Com tarefas</span></div>
+        <div className="legend-item"><div className="legend-color completed-legend"></div><span>Concluídas</span></div>
       </div>
-     
-      {/* Dias da semana */}
+
       <div className="calendar-weekdays">
-        <div>Dom</div>
-        <div>Seg</div>
-        <div>Ter</div>
-        <div>Qua</div>
-        <div>Qui</div>
-        <div>Sex</div>
-        <div>Sáb</div>
+        <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div>
+        <div>Qui</div><div>Sex</div><div>Sáb</div>
       </div>
-     
-      {/* Grid do calendário */}
-      <div className="calendar-grid">
-        {renderDays()}
+
+      <div className="calendar-grid">{renderDays()}</div>
+
+      <div className="selected-day-todos mt-4">
+        <h3>Tarefas de {selectedDate.toLocaleDateString("pt-BR")}:</h3>
+        {dayTodos.length === 0 ? (
+          <p>Nenhuma tarefa neste dia.</p>
+        ) : (
+          <ul>
+            {dayTodos.map(todo => (
+              <li key={todo.id} className={todo.isCompleted ? 'completed-text' : ''}>
+                {todo.text} {todo.isCompleted ? "(Concluída)" : ""}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Parse from "@/lib/parse";
+import Parse from "... @/lib/parse";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -16,7 +16,7 @@ export default function LoginPage() {
       const user = await Parse.User.logIn(username, password);
       setMensagem({ texto: "Login realizado com sucesso!", tipo: "success" });
       setTimeout(() => {
-        router.push("/"); // Redireciona para a página principal
+        router.push("/");
       }, 1500);
     } catch (err) {
       setMensagem({ texto: "Erro: " + err.message, tipo: "error" });

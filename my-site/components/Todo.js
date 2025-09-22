@@ -1,8 +1,9 @@
 "use client";
 
 export default function Todo({ todo, onComplete, onRemove }) {
-  const formatDate = (dateString) => {
-    const date = new Date(dateString + "T00:00:00");
+  const formatDate = (dateObj) => {
+    if (!dateObj) return "";
+    const date = new Date(dateObj);
     return date.toLocaleDateString("pt-BR");
   };
 
@@ -11,7 +12,7 @@ export default function Todo({ todo, onComplete, onRemove }) {
       <div className="content">
         <p className={todo.isCompleted ? "completed-text" : ""}>{todo.text}</p>
         <p className="categoria">Categoria = {todo.category}</p>
-        {todo.date && <p className="date">Data: {formatDate(todo.date)}</p>}
+        {todo.data && <p className="date">Data: {formatDate(todo.data)}</p>}
       </div>
 
       <div className="actions">
