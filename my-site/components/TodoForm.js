@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const TodoForm = ({ addTodo }) => {
+const TodoForm = ({ onAddTodo }) => { // ✅ Mudança: addTodo -> onAddTodo
     const [value, setValue] = useState("")
     const [category, setCategory] = useState("");
     const [selectedDate, setSelectedDate] = useState(() => {
@@ -8,10 +8,10 @@ const TodoForm = ({ addTodo }) => {
         const today = new Date();
         return today.toISOString().split('T')[0];
     });
-
+    
     const handleSubmit = (e) => {
         e.preventDefault()
-        
+       
         if (!value.trim()) {
             window.alert("Por favor, digite o título da tarefa")
             return
@@ -24,16 +24,16 @@ const TodoForm = ({ addTodo }) => {
             window.alert("Por favor, selecione uma data")
             return
         }
-
-        // Função para adicionar o todo com data
-        addTodo(value.trim(), category, selectedDate);
         
+        // ✅ Mudança: addTodo -> onAddTodo
+        onAddTodo(value.trim(), category, selectedDate);
+       
         // Reseta os campos
         setValue("")
         setCategory("")
         // Mantém a data como hoje para próxima tarefa
         setSelectedDate(new Date().toISOString().split('T')[0]);
-        
+       
         console.log('Tarefa criada:', { value, category, selectedDate })
     };
    
@@ -41,15 +41,15 @@ const TodoForm = ({ addTodo }) => {
         <div className="todo-form">
             <h2>Criar tarefa:</h2>
             <form onSubmit={handleSubmit}>
-                <input 
-                    type="text" 
+                <input
+                    type="text"
                     placeholder="Digite o título da tarefa"
                     value={value}
                     onChange={(e) => setValue(e.target.value)}
                 />
-                
-                <select 
-                    value={category} 
+               
+                <select
+                    value={category}
                     onChange={(e) => setCategory(e.target.value)}
                 >
                     <option value="">Escolha uma categoria</option>
@@ -58,14 +58,14 @@ const TodoForm = ({ addTodo }) => {
                     <option value="Estudos">Estudos</option>
                     <option value="Saúde">Saúde</option>
                 </select>
-                
+               
                 <input
                     type="date"
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
                     min={new Date().toISOString().split('T')[0]} // Não permite datas passadas
                 />
-                
+               
                 <button type="submit">Criar tarefa</button>
             </form>
         </div>
