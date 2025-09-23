@@ -5,6 +5,7 @@ import Todo from "../components/Todo.js";
 import TodoForm from "../components/TodoForm.js";
 import Calendar from "../components/Calendar.js";
 import Parse from "... @/lib/parse";
+import Endereco from "../components/Endereco.js"
 
 export default function Page() {
   const [todos, setTodos] = useState([]);
@@ -113,7 +114,7 @@ export default function Page() {
           </button>
         )}
       </div>
-
+      <Endereco/>
       <TodoForm onAddTodo={addTodo} />
 
       {loading ? (
