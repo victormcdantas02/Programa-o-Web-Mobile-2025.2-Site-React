@@ -36,7 +36,7 @@ export default function Page() {
           category: todo.get("category"),
           isCompleted: todo.get("isCompleted"),
           data: parseDate
-            ? new Date(Date.UTC(parseDate.getFullYear(), parseDate.getMonth(), parseDate.getDate()))
+            ? new Date(parseDate.getFullYear(), parseDate.getMonth(), parseDate.getDate())
             : null,
         };
       }));
@@ -101,7 +101,9 @@ export default function Page() {
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-3">
         <h2 className="text-lg font-semibold">📅 Suas Tarefas</h2>
+        </div>
         {user && (
           <button
             onClick={handleLogout}

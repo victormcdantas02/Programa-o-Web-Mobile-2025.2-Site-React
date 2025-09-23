@@ -3,7 +3,18 @@
 export default function Todo({ todo, onComplete, onRemove }) {
   const formatDate = (dateObj) => {
     if (!dateObj) return "";
-    const date = new Date(dateObj);
+    
+    // ✅ CORREÇÃO: Tratar tanto strings quanto objetos Date
+    let date;
+    if (typeof dateObj === 'string') {
+      // Se for string do input date, criar data local
+      const [year, month, day] = dateObj.split('-').map(Number);
+      date = new Date(year, month - 1, day);
+    } else {
+      // Se já for objeto Date
+      date = new Date(dateObj);
+    }
+    
     return date.toLocaleDateString("pt-BR");
   };
 
@@ -14,7 +25,6 @@ export default function Todo({ todo, onComplete, onRemove }) {
         <p className="categoria">Categoria = {todo.category}</p>
         {todo.data && <p className="date">Data: {formatDate(todo.data)}</p>}
       </div>
-
       <div className="actions">
         <button
           className={`complete ${todo.isCompleted ? "undo" : ""}`}

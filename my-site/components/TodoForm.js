@@ -10,16 +10,15 @@ const TodoForm = ({ onAddTodo }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     if (!value.trim()) return alert("Por favor, digite o título da tarefa");
     if (!category) return alert("Por favor, escolha uma categoria");
     if (!selectedDate) return alert("Por favor, selecione uma data");
 
+    // ✅ CORREÇÃO: Criar data no timezone local em vez de UTC
     const [year, month, day] = selectedDate.split("-").map(Number);
-    const dateObj = new Date(Date.UTC(year, month - 1, day));
+    const dateObj = new Date(year, month - 1, day); // Removido Date.UTC()
 
     onAddTodo(value.trim(), category, dateObj);
-
     setValue("");
     setCategory("");
     setSelectedDate(new Date().toISOString().split('T')[0]);
@@ -35,7 +34,6 @@ const TodoForm = ({ onAddTodo }) => {
           value={value}
           onChange={(e) => setValue(e.target.value)}
         />
-
         <select value={category} onChange={(e) => setCategory(e.target.value)}>
           <option value="">Escolha uma categoria</option>
           <option value="Trabalho">Trabalho</option>
@@ -43,14 +41,12 @@ const TodoForm = ({ onAddTodo }) => {
           <option value="Estudos">Estudos</option>
           <option value="Saúde">Saúde</option>
         </select>
-
         <input
           type="date"
           value={selectedDate}
           onChange={(e) => setSelectedDate(e.target.value)}
           min={new Date().toISOString().split('T')[0]}
         />
-
         <button type="submit">Criar tarefa</button>
       </form>
     </div>

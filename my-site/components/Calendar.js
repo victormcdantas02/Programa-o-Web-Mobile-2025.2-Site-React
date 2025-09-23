@@ -3,71 +3,96 @@ import { useState } from "react";
 
 export default function Calendar({ selectedDate, todos, onDateSelect }) {  
   const today = new Date();
-  const [viewDate, setViewDate] = useState(new Date(Date.UTC(today.getFullYear(), today.getMonth(), 1)));
+  const [viewDate, setViewDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const [dayTodos, setDayTodos] = useState([]);
 
-  const currentMonth = viewDate.getUTCMonth();
-  const currentYear = viewDate.getUTCFullYear();
+  const currentMonth = viewDate.getMonth();
+  const currentYear = viewDate.getFullYear();
 
   const monthNames = [
     "JANEIRO","FEVEREIRO","MARÇO","ABRIL","MAIO","JUNHO",
     "JULHO","AGOSTO","SETEMBRO","OUTUBRO","NOVEMBRO","DEZEMBRO"
   ];
 
-  const previousMonth = () => setViewDate(new Date(Date.UTC(currentYear, currentMonth - 1, 1)));
-  const nextMonth = () => setViewDate(new Date(Date.UTC(currentYear, currentMonth + 1, 1)));
+  const previousMonth = () => setViewDate(new Date(currentYear, currentMonth - 1, 1));
+  const nextMonth = () => setViewDate(new Date(currentYear, currentMonth + 1, 1));
   const goToToday = () => {
-    const newToday = new Date(Date.UTC(today.getFullYear(), today.getMonth(), 1));
+    const newToday = new Date(today.getFullYear(), today.getMonth(), 1);
     setViewDate(newToday);
     handleDateSelect(today);
   };
 
-  const sameDay = (d1, d2) =>
-    d1.getUTCFullYear() === d2.getUTCFullYear() &&
-    d1.getUTCMonth() === d2.getUTCMonth() &&
-    d1.getUTCDate() === d2.getUTCDate();
+  // ✅ CORREÇÃO: Função para normalizar datas para comparação
+  const normalizeDate = (date) => {
+    if (!date) return null;
+    if (typeof date === 'string') {
+      const [year, month, day] = date.split('-').map(Number);
+      return new Date(year, month - 1, day);
+    }
+    return new Date(date);
+  };
+
+  const sameDay = (d1, d2) => {
+    const date1 = normalizeDate(d1);
+    const date2 = normalizeDate(d2);
+    if (!date1 || !date2) return false;
+    
+    return date1.getFullYear() === date2.getFullYear() &&
+           date1.getMonth() === date2.getMonth() &&
+           date1.getDate() === date2.getDate();
+  };
 
   const handleDateSelect = (date) => {
     onDateSelect && onDateSelect(date);
-    const todosDoDia = todos.filter(todo => todo.data && sameDay(new Date(todo.data), date));
+    const todosDoDia = todos.filter(todo => todo.data && sameDay(todo.data, date));
     setDayTodos(todosDoDia);
   };
 
   const hasTasksOnDate = (day) => {
-    const dayDate = new Date(Date.UTC(currentYear, currentMonth, day));
-    return todos.some(todo => todo.data && sameDay(new Date(todo.data), dayDate));
+    const dayDate = new Date(currentYear, currentMonth, day);
+    return todos.some(todo => todo.data && sameDay(todo.data, dayDate));
   };
 
   const getTaskCountForDate = (day) => {
-    const dayDate = new Date(Date.UTC(currentYear, currentMonth, day));
-    return todos.filter(todo => todo.data && sameDay(new Date(todo.data), dayDate)).length;
+    const dayDate = new Date(currentYear, currentMonth, day);
+    return todos.filter(todo => todo.data && sameDay(todo.data, dayDate)).length;
   };
 
   const getCompletedTasksForDate = (day) => {
-    const dayDate = new Date(Date.UTC(currentYear, currentMonth, day));
-    return todos.filter(todo => todo.data && sameDay(new Date(todo.data), dayDate) && todo.isCompleted).length;
+    const dayDate = new Date(currentYear, currentMonth, day);
+    return todos.filter(todo => todo.data && sameDay(todo.data, dayDate) && todo.isCompleted).length;
   };
 
   const areAllTasksCompleted = (day) => {
-    const dayDate = new Date(Date.UTC(currentYear, currentMonth, day));
-    const dayTodos = todos.filter(todo => todo.data && sameDay(new Date(todo.data), dayDate));
+    const dayDate = new Date(currentYear, currentMonth, day);
+    const dayTodos = todos.filter(todo => todo.data && sameDay(todo.data, dayDate));
     return dayTodos.length > 0 && dayTodos.every(todo => todo.isCompleted);
   };
 
-  const isSelectedDay = (day) => sameDay(selectedDate, new Date(Date.UTC(currentYear, currentMonth, day)));
-  const isPastDay = (day) => new Date(Date.UTC(currentYear, currentMonth, day)) < new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
-  const isWeekend = (day) => { const d = new Date(Date.UTC(currentYear, currentMonth, day)); return d.getUTCDay() === 0 || d.getUTCDay() === 6; };
-  const selectDay = (day) => handleDateSelect(new Date(Date.UTC(currentYear, currentMonth, day)));
+  const isSelectedDay = (day) => sameDay(selectedDate, new Date(currentYear, currentMonth, day));
+  
+  const isPastDay = (day) => {
+    const dayDate = new Date(currentYear, currentMonth, day);
+    const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    return dayDate < todayDate;
+  };
+  
+  const isWeekend = (day) => { 
+    const d = new Date(currentYear, currentMonth, day); 
+    return d.getDay() === 0 || d.getDay() === 6; 
+  };
+  
+  const selectDay = (day) => handleDateSelect(new Date(currentYear, currentMonth, day));
 
   const renderDays = () => {
-    const daysInMonth = new Date(Date.UTC(currentYear, currentMonth + 1, 0)).getUTCDate();
-    const firstDay = new Date(Date.UTC(currentYear, currentMonth, 1)).getUTCDay();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
     const days = [];
 
     for (let i = 0; i < firstDay; i++) days.push(<div key={`empty-${i}`} className="calendar-day empty"></div>);
 
     for (let day = 1; day <= daysInMonth; day++) {
-      const isToday = sameDay(today, new Date(Date.UTC(currentYear, currentMonth, day)));
+      const isToday = sameDay(today, new Date(currentYear, currentMonth, day));
       const taskCount = getTaskCountForDate(day);
       const completedCount = getCompletedTasksForDate(day);
       const allCompleted = areAllTasksCompleted(day);
@@ -109,8 +134,8 @@ export default function Calendar({ selectedDate, todos, onDateSelect }) {
 
   const getMonthStats = () => {
     const monthTodos = todos.filter(todo => {
-      const d = new Date(todo.data);
-      return d.getUTCFullYear() === currentYear && d.getUTCMonth() === currentMonth;
+      const d = normalizeDate(todo.data);
+      return d && d.getFullYear() === currentYear && d.getMonth() === currentMonth;
     });
     const completed = monthTodos.filter(todo => todo.isCompleted).length;
     const total = monthTodos.length;
